@@ -13,6 +13,7 @@ const nav = [
   { href: "/judge", label: "Judge" },
   { href: "/dashboard", label: "Dashboard" },
   { href: "/admin", label: "Admin" },
+  { href: "/ipfs-test", label: "IPFS Test" },
 ];
 
 export function SiteHeader() {

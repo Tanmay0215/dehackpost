@@ -1,4 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 export default function UserDashboard() {
   return (
@@ -21,6 +23,12 @@ export default function UserDashboard() {
             Your past projects and hackathons.
           </CardContent>
         </Card>
+      </div>
+      
+      <div className="mt-8">
+        <Link href="/ipfs-test">
+          <Button>Test IPFS Integration</Button>
+        </Link>
       </div>
     </main>
   );
