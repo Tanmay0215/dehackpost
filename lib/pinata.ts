@@ -7,7 +7,7 @@ export const pinata = new PinataSDK({
   pinataGateway: `${process.env.NEXT_PUBLIC_GATEWAY_URL}`
 })
 
-export async function uploadJSONToIPFS(jsonData: any) {
+export async function uploadJSONToIPFS(jsonData: object) {
   try {
     const result = await pinata.upload.public.json(jsonData, {
       metadata: {
