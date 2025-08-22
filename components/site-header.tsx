@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
+import { ConnectButton } from "@rainbow-me/rainbowkit";
 
 const nav = [
   { href: "/", label: "Discover" },
@@ -42,9 +42,7 @@ export function SiteHeader() {
         </nav>
 
         <div className="ml-auto flex items-center gap-2">
-          <Button size="sm" variant="outline">
-            Connect Wallet
-          </Button>
+          <ConnectButton />
         </div>
       </div>
     </header>
