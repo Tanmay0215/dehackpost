@@ -1,4 +1,4 @@
-import { IPFSUploadButton } from "@/components/ipfs-upload-button";
+import { IPFSUploadButton } from "@/app/_components/ipfs-upload-button";
 
 export default function IPFSTestPage() {
   return (

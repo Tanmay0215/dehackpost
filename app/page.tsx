@@ -22,6 +22,11 @@ const mockEvents = [
     date: "2025-09-10",
     prize: "$500k",
     tracks: ["DeFi", "AI"],
+    description: "A global Ethereum hackathon with top DeFi and AI tracks.",
+    location: "Online",
+    participants: 1200,
+    sponsors: ["Ethereum Foundation", "Aave"],
+    image: "/file.svg",
   },
   {
     id: "sol-summer",
@@ -29,6 +34,12 @@ const mockEvents = [
     date: "2025-08-01",
     prize: "$1M",
     tracks: ["Infra", "Payments"],
+    description:
+      "Solana's biggest summer event for infrastructure and payments.",
+    location: "San Francisco, CA",
+    participants: 800,
+    sponsors: ["Solana Labs", "Circle"],
+    image: "/globe.svg",
   },
   {
     id: "zk-weekend",
@@ -36,6 +47,23 @@ const mockEvents = [
     date: "2025-07-15",
     prize: "$100k",
     tracks: ["ZK", "Identity"],
+    description: "Zero Knowledge and Identity focused hackathon.",
+    location: "Berlin, Germany",
+    participants: 300,
+    sponsors: ["Polygon", "zkSync"],
+    image: "/next.svg",
+  },
+  {
+    id: "dehackpost-launch",
+    name: "Dehackpost Launch Hackathon",
+    date: "2025-09-01",
+    prize: "$2k USDC",
+    tracks: ["Decentralized Apps", "Infra"],
+    description: "A hackathon to build decentralized apps for Dehackpost.",
+    location: "Remote",
+    participants: 500,
+    sponsors: ["Dehackpost"],
+    image: "/file.svg",
   },
 ];
 
@@ -62,25 +90,38 @@ export default function Home() {
         </div>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {mockEvents.map((e) => (
-          <Card key={e.id} className="hover:shadow-md transition-shadow">
-            <CardHeader>
-              <CardTitle className="text-base">{e.name}</CardTitle>
-              <CardDescription>
-                {e.date} • Prize {e.prize}
+          <Card
+            key={e.id}
+            className="hover:shadow-lg transition-shadow border-0 bg-white rounded-xl overflow-hidden"
+          >
+            <img
+              src={e.image}
+              alt={e.name}
+              className="w-full h-32 object-cover"
+            />
+            <CardHeader className="pb-2">
+              <CardTitle className="text-lg font-semibold">{e.name}</CardTitle>
+              <CardDescription className="text-xs text-gray-500">
+                {e.location} • {e.date} • Prize {e.prize}
               </CardDescription>
             </CardHeader>
             <CardContent className="text-sm">
-              <div className="flex flex-wrap gap-2">
+              <div className="mb-2 text-gray-700">{e.description}</div>
+              <div className="flex flex-wrap gap-2 mb-2">
                 {e.tracks.map((t) => (
                   <span
                     key={t}
-                    className="rounded-md border px-2 py-0.5 text-xs"
+                    className="rounded-md border px-2 py-0.5 text-xs bg-gray-100"
                   >
                     {t}
                   </span>
                 ))}
+              </div>
+              <div className="flex flex-wrap gap-2 text-xs text-gray-500">
+                <span>Participants: {e.participants}</span>
+                <span>Sponsors: {e.sponsors.join(", ")}</span>
               </div>
             </CardContent>
           </Card>
