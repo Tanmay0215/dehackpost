@@ -78,7 +78,7 @@ function SideBarItems({
 	text: string;
 	expanded: boolean;
 	href: string;
-	icon: any;
+	icon: React.ElementType;
 }) {
 	const Icon = icon;
 	return (
