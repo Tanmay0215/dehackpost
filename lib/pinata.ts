@@ -9,9 +9,12 @@ export const pinata = new PinataSDK({
 
 export async function uploadJSONToIPFS(jsonData: object) {
   try {
+    const dataAny = jsonData as any;
+    const hackathonId = typeof dataAny?.id === 'string' && dataAny.id.trim().length > 0 ? dataAny.id.trim() : null;
+    const fileName = hackathonId ? `hackathon-${hackathonId}.json` : 'data.json';
     const result = await pinata.upload.public.json(jsonData, {
       metadata: {
-        name: `hackathon-${Date.now()}.json`
+        name: fileName
       }
     });
     return result;
