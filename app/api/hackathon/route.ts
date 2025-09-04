@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { buildHackathon, HackathonInput } from '@/lib/hackathon';
+import { buildHackathon } from '@/lib/hackathon';
+import type { HackathonInput } from '@/lib/hackathon';
 
 export async function POST(req: NextRequest) {
     try {
@@ -27,7 +28,7 @@ export async function POST(req: NextRequest) {
         });
 
         return NextResponse.json(hackathon);
-    } catch (err) {
+    } catch (_) {
         return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
     }
 }

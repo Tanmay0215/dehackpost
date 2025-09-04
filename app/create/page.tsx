@@ -199,7 +199,12 @@ export default function CreateHackathon() {
               <Input
                 id="status"
                 value={status}
-                onChange={(e) => setStatus(e.target.value as any)}
+                onChange={(e) => {
+                  const v = e.target.value;
+                  if (v === "upcoming" || v === "ongoing" || v === "ended") {
+                    setStatus(v);
+                  }
+                }}
                 placeholder="upcoming | ongoing | ended"
               />
             </div>

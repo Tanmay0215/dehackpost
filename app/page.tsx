@@ -5,6 +5,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import Image from "next/image";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -96,9 +97,11 @@ export default function Home() {
             key={e.id}
             className="hover:shadow-lg transition-shadow border-0 bg-white rounded-xl overflow-hidden"
           >
-            <img
+            <Image
               src={e.image}
               alt={e.name}
+              width={800}
+              height={128}
               className="w-full h-32 object-cover"
             />
             <CardHeader className="pb-2">

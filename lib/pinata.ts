@@ -7,10 +7,12 @@ export const pinata = new PinataSDK({
   pinataGateway: `${process.env.NEXT_PUBLIC_GATEWAY_URL}`
 })
 
-export async function uploadJSONToIPFS(jsonData: object) {
+type UploadableJSON = Record<string, unknown>;
+
+export async function uploadJSONToIPFS(jsonData: UploadableJSON) {
   try {
-    const dataAny = jsonData as any;
-    const hackathonId = typeof dataAny?.id === 'string' && dataAny.id.trim().length > 0 ? dataAny.id.trim() : null;
+    const idValue = jsonData?.id;
+    const hackathonId = typeof idValue === 'string' && idValue.trim().length > 0 ? idValue.trim() : null;
     const fileName = hackathonId ? `hackathon-${hackathonId}.json` : 'data.json';
     const result = await pinata.upload.public.json(jsonData, {
       metadata: {
