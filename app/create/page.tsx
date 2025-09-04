@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useAccount } from "wagmi";
 import { buildHackathon } from "@/lib/hackathon";
+import type { HackathonPrize, HackathonJudge } from "@/lib/hackathon";
 
 export default function CreateHackathon() {
   const { address } = useAccount();
@@ -21,23 +22,17 @@ export default function CreateHackathon() {
   const [status, setStatus] = useState<"upcoming" | "ongoing" | "ended">(
     "upcoming"
   );
-  const [prizes, setPrizes] = useState(
-    JSON.stringify(
-      [
-        {
-          title: "1st Prize",
-          reward: "2000 USDC",
-          sponsor: "Polygon",
-          winner: null,
-        },
-      ],
-      null,
-      2
-    )
-  );
-  const [judges, setJudges] = useState(
-    JSON.stringify([{ name: "Alice", wallet: "0xJudge1" }], null, 2)
-  );
+  const [prizes, setPrizes] = useState<HackathonPrize[]>([
+    {
+      title: "1st Prize",
+      reward: "2000 USDC",
+      sponsor: "Polygon",
+      winner: null,
+    },
+  ]);
+  const [judges, setJudges] = useState<HackathonJudge[]>([
+    { name: "Alice", wallet: "0xJudge1" },
+  ]);
   const [projectsCID, setProjectsCID] = useState<string>("");
   const [createdAt, setCreatedAt] = useState<string>("");
   const [resultJson, setResultJson] = useState<string>("");
@@ -55,20 +50,7 @@ export default function CreateHackathon() {
     }
   }, [address, organizer]);
 
-  const parsedPrizes = useMemo(() => {
-    try {
-      return JSON.parse(prizes || "[]");
-    } catch {
-      return [];
-    }
-  }, [prizes]);
-  const parsedJudges = useMemo(() => {
-    try {
-      return JSON.parse(judges || "[]");
-    } catch {
-      return [];
-    }
-  }, [judges]);
+  // Prizes and judges are now arrays, not JSON strings
   const parsedProjectsCID = useMemo(() => {
     return projectsCID
       .split(",")
@@ -89,8 +71,8 @@ export default function CreateHackathon() {
           .split(",")
           .map((t) => t.trim())
           .filter(Boolean),
-        prizes: parsedPrizes,
-        judges: parsedJudges,
+        prizes,
+        judges,
         projectsCID: parsedProjectsCID,
         status,
         createdAt: createdAt || new Date().toISOString(),
@@ -107,8 +89,8 @@ export default function CreateHackathon() {
     start,
     end,
     tracks,
-    parsedPrizes,
-    parsedJudges,
+    prizes,
+    judges,
     parsedProjectsCID,
     status,
     createdAt,
@@ -231,22 +213,128 @@ export default function CreateHackathon() {
               />
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="prizes">Prizes (JSON)</Label>
-              <Textarea
-                id="prizes"
-                value={prizes}
-                onChange={(e) => setPrizes(e.target.value)}
-                className="min-h-[120px]"
-              />
+              <Label>Prizes</Label>
+              <div className="space-y-2">
+                {prizes.map((p, idx) => (
+                  <div key={idx} className="grid grid-cols-4 gap-2">
+                    <Input
+                      placeholder="Title"
+                      value={p.title}
+                      onChange={(e) => {
+                        const next = [...prizes];
+                        next[idx] = { ...next[idx], title: e.target.value };
+                        setPrizes(next);
+                      }}
+                    />
+                    <Input
+                      placeholder="Reward"
+                      value={p.reward}
+                      onChange={(e) => {
+                        const next = [...prizes];
+                        next[idx] = { ...next[idx], reward: e.target.value };
+                        setPrizes(next);
+                      }}
+                    />
+                    <Input
+                      placeholder="Sponsor (optional)"
+                      value={p.sponsor ?? ""}
+                      onChange={(e) => {
+                        const next = [...prizes];
+                        next[idx] = {
+                          ...next[idx],
+                          sponsor: e.target.value || undefined,
+                        };
+                        setPrizes(next);
+                      }}
+                    />
+                    <Input
+                      placeholder="Winner (optional)"
+                      value={p.winner ?? ""}
+                      onChange={(e) => {
+                        const next = [...prizes];
+                        next[idx] = {
+                          ...next[idx],
+                          winner: e.target.value || null,
+                        };
+                        setPrizes(next);
+                      }}
+                    />
+                  </div>
+                ))}
+                <div className="flex gap-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() =>
+                      setPrizes([
+                        ...prizes,
+                        {
+                          title: "",
+                          reward: "",
+                          sponsor: undefined,
+                          winner: null,
+                        },
+                      ])
+                    }
+                  >
+                    Add prize
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setPrizes(prizes.slice(0, -1))}
+                    disabled={prizes.length === 0}
+                  >
+                    Remove last
+                  </Button>
+                </div>
+              </div>
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="judges">Judges (JSON)</Label>
-              <Textarea
-                id="judges"
-                value={judges}
-                onChange={(e) => setJudges(e.target.value)}
-                className="min-h-[120px]"
-              />
+              <Label>Judges</Label>
+              <div className="space-y-2">
+                {judges.map((j, idx) => (
+                  <div key={idx} className="grid grid-cols-2 gap-2">
+                    <Input
+                      placeholder="Name"
+                      value={j.name}
+                      onChange={(e) => {
+                        const next = [...judges];
+                        next[idx] = { ...next[idx], name: e.target.value };
+                        setJudges(next);
+                      }}
+                    />
+                    <Input
+                      placeholder="Wallet"
+                      value={j.wallet}
+                      onChange={(e) => {
+                        const next = [...judges];
+                        next[idx] = { ...next[idx], wallet: e.target.value };
+                        setJudges(next);
+                      }}
+                    />
+                  </div>
+                ))}
+                <div className="flex gap-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() =>
+                      setJudges([...judges, { name: "", wallet: "" }])
+                    }
+                  >
+                    Add judge
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setJudges(judges.slice(0, -1))}
+                    disabled={judges.length === 0}
+                  >
+                    Remove last
+                  </Button>
+                </div>
+              </div>
             </div>
             <div className="grid gap-2">
               <Label htmlFor="projectsCID">
