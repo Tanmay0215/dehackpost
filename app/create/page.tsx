@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useAccount } from "wagmi";
 import { buildHackathon } from "@/lib/hackathon";
+import type { Registry } from "@/lib/types";
 import type { HackathonPrize, HackathonJudge } from "@/lib/hackathon";
 
 export default function CreateHackathon() {
@@ -42,7 +43,6 @@ export default function CreateHackathon() {
     error?: string;
   } | null>(null);
   const [submitting, setSubmitting] = useState(false);
-  const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
     if (address && !organizer) {
@@ -112,19 +112,56 @@ export default function CreateHackathon() {
     }
   }
 
-  async function handleUploadToIPFS() {
+  async function handleSubmitAndUpload() {
     if (!preview) return;
-    setUploading(true);
+    setSubmitting(true);
+    setIpfsResponse(null);
     try {
-      const res = await fetch("/api/ipfs", {
+      // 1) Build canonical JSON on server (validation)
+      const apiRes = await fetch("/api/hackathon", {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: preview,
       });
-      const json = await res.json();
-      setIpfsResponse(json);
+      const built = await apiRes.json();
+      setResultJson(JSON.stringify(built, null, 2));
+
+      // 2) Upload to IPFS
+      const ipfsRes = await fetch("/api/ipfs", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(built),
+      });
+      const ipfsJson = await ipfsRes.json();
+      setIpfsResponse(ipfsJson);
+
+      if (!ipfsJson?.cid) return;
+
+      // 3) Update registry (merge current + new entry)
+      const currentRegistry = (await fetch("/api/registry", {
+        cache: "no-store",
+      }).then((r) => r.json())) as Registry;
+      const mergedRes = await fetch("/api/registry", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          current: currentRegistry,
+          add: { id: built.id as string, cid: ipfsJson.cid as string },
+        }),
+      });
+      const nextRegistry = (await mergedRes.json()) as Registry;
+
+      // 4) Upload new registry to IPFS
+      const regUpload = await fetch("/api/ipfs", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(nextRegistry),
+      }).then((r) => r.json());
+
+      // Optionally display new registry CID
+      console.log("Updated registry CID:", regUpload?.cid);
     } finally {
-      setUploading(false);
+      setSubmitting(false);
     }
   }
 
@@ -391,7 +428,9 @@ export default function CreateHackathon() {
                 ) : ipfsResponse?.error ? (
                   <div className="text-red-600">{ipfsResponse.error}</div>
                 ) : (
-                  <div>Upload a generated JSON to IPFS.</div>
+                  <div>
+                    Submit will also upload to IPFS and update registry.
+                  </div>
                 )}
               </div>
             </div>
@@ -400,14 +439,10 @@ export default function CreateHackathon() {
 
         <div className="flex justify-end gap-2">
           <Button
-            variant="outline"
-            onClick={handleUploadToIPFS}
-            disabled={!preview || uploading}
+            onClick={handleSubmitAndUpload}
+            disabled={!preview || submitting}
           >
-            {uploading ? "Uploading..." : "Upload to IPFS"}
-          </Button>
-          <Button onClick={handleSubmit} disabled={!preview || submitting}>
-            {submitting ? "Submitting..." : "Submit"}
+            {submitting ? "Submitting..." : "Submit & Upload"}
           </Button>
         </div>
       </div>

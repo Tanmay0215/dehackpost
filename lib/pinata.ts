@@ -25,3 +25,8 @@ export async function uploadJSONToIPFS(jsonData: UploadableJSON) {
     throw error;
   }
 }
+
+export function buildGatewayUrlForCid(cid: string): string {
+  const base = process.env.NEXT_PUBLIC_GATEWAY_URL ?? '';
+  return `${String(base).replace(/\/$/, '')}/ipfs/${cid}`;
+}
