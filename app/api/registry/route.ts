@@ -16,7 +16,7 @@ export async function GET() {
         }
         const data = (await fetchFromGateway(REGISTRY_CID_ENV)) as Registry;
         return NextResponse.json(data);
-    } catch (error) {
+    } catch {
         return NextResponse.json({ hackathons: [], users: [] } as Registry);
     }
 }
@@ -38,7 +38,7 @@ export async function POST(req: NextRequest) {
 
         const next: Registry = { hackathons, users };
         return NextResponse.json(next);
-    } catch (_) {
+    } catch {
         return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
     }
 }

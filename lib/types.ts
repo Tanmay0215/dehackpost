@@ -37,4 +37,16 @@ export type Registry = {
     users: { wallet: string; cid: string }[];
 };
 
+export type PinataFileMetadata = {
+    id: string;
+    name: string;
+    cid: string;
+    size: number;
+    number_of_files: number;
+    mime_type: string | null;
+    group_id: string | null;
+    keyvalues?: Record<string, unknown>;
+    created_at: string;
+};
+
 

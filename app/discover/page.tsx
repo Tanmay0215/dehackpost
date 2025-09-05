@@ -6,7 +6,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import Image from "next/image";
 import { useEffect, useState } from "react";
 import type { Registry } from "@/lib/types";
 import { IPFS_GATEWAY } from "@/lib/constants";

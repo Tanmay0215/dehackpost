@@ -28,7 +28,7 @@ export async function POST(req: NextRequest) {
         });
 
         return NextResponse.json(hackathon);
-    } catch (_) {
+    } catch {
         return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
     }
 }

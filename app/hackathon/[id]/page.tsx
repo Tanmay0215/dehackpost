@@ -1,6 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { IPFS_GATEWAY } from "@/lib/constants";
-import { Suspense } from "react";
 
 async function getHackathonData(id: string) {
   const reg = await fetch(

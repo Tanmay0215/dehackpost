@@ -1,4 +1,4 @@
-import { Menu, Search, Bell, Users, Network } from "lucide-react";
+import { Menu, Search } from "lucide-react";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 
 function Header({

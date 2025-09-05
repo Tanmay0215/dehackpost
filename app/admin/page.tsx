@@ -6,6 +6,36 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { IPFS_GATEWAY } from "@/lib/constants";
 import type { Registry } from "@/lib/types";
 
+type IpfsContentResponse<T> =
+  | { success: true; content: T }
+  | { success: false; error?: string };
+
+function isObjectRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null;
+}
+
+function readString(value: unknown, fallback = "-"): string {
+  return typeof value === "string" ? value : fallback;
+}
+
+function readOptionalString(value: unknown): string | undefined {
+  return typeof value === "string" ? value : undefined;
+}
+
+function readStringArray(value: unknown): string[] {
+  return Array.isArray(value) ? value.filter((v) => typeof v === "string") : [];
+}
+
+function readSchedule(value: unknown): { start: string; end: string } {
+  if (isObjectRecord(value)) {
+    return {
+      start: readString(value.start, ""),
+      end: readString(value.end, ""),
+    };
+  }
+  return { start: "", end: "" };
+}
+
 type HackathonRow = {
   id: string;
   name: string;
@@ -49,16 +79,42 @@ export default function AdminPanel() {
         const hackRows = await Promise.all(
           (reg.hackathons ?? []).map(async (h) => {
             try {
-              const data = await fetch(`${IPFS_GATEWAY}/ipfs/${h.cid}`, {
-                cache: "no-store",
-              }).then((r) => r.json());
+              // Try via server API by CID first, then fallback to ID
+              const byCid = await fetch(
+                `/api/ipfs?cid=${encodeURIComponent(h.cid)}`,
+                {
+                  cache: "no-store",
+                }
+              )
+                .then((r) => r.json() as Promise<IpfsContentResponse<unknown>>)
+                .catch(
+                  () => ({ success: false } as IpfsContentResponse<unknown>)
+                );
+              let content: unknown = byCid?.success ? byCid.content : null;
+              if (!content) {
+                const byId = await fetch(
+                  `/api/ipfs?id=${encodeURIComponent(h.cid)}`,
+                  {
+                    cache: "no-store",
+                  }
+                )
+                  .then(
+                    (r) => r.json() as Promise<IpfsContentResponse<unknown>>
+                  )
+                  .catch(
+                    () => ({ success: false } as IpfsContentResponse<unknown>)
+                  );
+                content = byId?.success ? byId.content : null;
+              }
+              if (!content) throw new Error("Failed to load hackathon");
+              const obj = isObjectRecord(content) ? content : {};
               return {
-                id: data.id as string,
-                name: data.name as string,
-                status: (data.status ?? "-") as string,
-                schedule: data.schedule as { start: string; end: string },
-                tracks: (data.tracks ?? []) as string[],
-                projectsCID: (data.projectsCID ?? []) as string[],
+                id: readString(obj.id, h.cid),
+                name: readString(obj.name, "-"),
+                status: readString(obj.status, "-"),
+                schedule: readSchedule(obj.schedule),
+                tracks: readStringArray(obj.tracks),
+                projectsCID: readStringArray(obj.projectsCID),
                 cid: h.cid,
               } satisfies HackathonRow;
             } catch {
@@ -66,38 +122,69 @@ export default function AdminPanel() {
             }
           })
         );
-        const filteredH = hackRows.filter(Boolean) as HackathonRow[];
+        const filteredH = hackRows.filter((v): v is HackathonRow => Boolean(v));
         setHackathons(filteredH);
 
         // Load users
-        setUsers((reg.users ?? []) as unknown as UserRow[]);
+        setUsers(reg.users ?? []);
 
         // Load projects by crawling hackathons' project CIDs
         const projectCidSet = new Set<string>();
         for (const h of filteredH) {
           for (const cid of h.projectsCID) projectCidSet.add(cid);
         }
-        const projRows = await Promise.all(
-          Array.from(projectCidSet).map(async (cid) => {
-            try {
-              const data = await fetch(`${IPFS_GATEWAY}/ipfs/${cid}`, {
-                cache: "no-store",
-              }).then((r) => r.json());
-              return {
-                id: (data.id ?? cid) as string,
-                projectTitle: (data.projectTitle ?? "-") as string,
-                teamName: (data.teamName ?? "-") as string,
-                hackathonId: (data.hackathonId ?? "-") as string,
-                repoURL: (data.repoURL ?? undefined) as string | undefined,
-                cid,
-              } satisfies ProjectRow;
-            } catch {
-              return null;
+        const projRows: Array<ProjectRow | null> = await Promise.all(
+          Array.from(projectCidSet).map(
+            async (cid): Promise<ProjectRow | null> => {
+              try {
+                const byCid = await fetch(
+                  `/api/ipfs?cid=${encodeURIComponent(cid)}`,
+                  {
+                    cache: "no-store",
+                  }
+                )
+                  .then(
+                    (r) => r.json() as Promise<IpfsContentResponse<unknown>>
+                  )
+                  .catch(
+                    () => ({ success: false } as IpfsContentResponse<unknown>)
+                  );
+                let content: unknown = byCid?.success ? byCid.content : null;
+                if (!content) {
+                  const byId = await fetch(
+                    `/api/ipfs?id=${encodeURIComponent(cid)}`,
+                    {
+                      cache: "no-store",
+                    }
+                  )
+                    .then(
+                      (r) => r.json() as Promise<IpfsContentResponse<unknown>>
+                    )
+                    .catch(
+                      () => ({ success: false } as IpfsContentResponse<unknown>)
+                    );
+                  content = byId?.success ? byId.content : null;
+                }
+                if (!content) throw new Error("Failed to load project");
+                const obj = isObjectRecord(content) ? content : {};
+                const row: ProjectRow = {
+                  id: readString(obj.id, cid),
+                  projectTitle: readString(obj.projectTitle, "-"),
+                  teamName: readString(obj.teamName, "-"),
+                  hackathonId: readString(obj.hackathonId, "-"),
+                  cid,
+                };
+                const repo = readOptionalString(obj.repoURL);
+                if (repo) row.repoURL = repo;
+                return row;
+              } catch {
+                return null;
+              }
             }
-          })
+          )
         );
-        setProjects(projRows.filter(Boolean) as ProjectRow[]);
-      } catch (e) {
+        setProjects(projRows.filter((v): v is ProjectRow => v !== null));
+      } catch {
         setError("Failed to load registry or IPFS data");
       } finally {
         setLoading(false);
