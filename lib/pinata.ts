@@ -12,8 +12,8 @@ type UploadableJSON = Record<string, unknown>;
 export async function uploadJSONToIPFS(jsonData: UploadableJSON) {
   try {
     const idValue = jsonData?.id;
-    const hackathonId = typeof idValue === 'string' && idValue.trim().length > 0 ? idValue.trim() : null;
-    const fileName = hackathonId ? `hackathon-${hackathonId}.json` : 'data.json';
+    // const hackathonId = typeof idValue === 'string' && idValue.trim().length > 0 ? idValue.trim() : null;
+    const fileName = "hackathon.json";
     const result = await pinata.upload.public.json(jsonData, {
       metadata: {
         name: fileName

@@ -7,8 +7,10 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import type { ProjectMetadata, Registry } from "@/lib/types";
 import { IPFS_GATEWAY } from "@/lib/constants";
+import { useAccount } from "wagmi";
 
 export default function SubmitProject() {
+  const { address } = useAccount();
   const [title, setTitle] = useState("");
   const [repo, setRepo] = useState("");
   const [hackathonId, setHackathonId] = useState("");
@@ -27,7 +29,7 @@ export default function SubmitProject() {
         id: `project-${Math.random().toString(36).slice(2, 8)}`,
         hackathonId,
         teamName,
-        members: [],
+        members: address ? [{ name: "", wallet: address }] : [],
         projectTitle: title,
         description: notes,
         tags: [],
