@@ -15,7 +15,7 @@ function Header({
         >
           <Menu className="text-gray-700" size={22} />
         </button>
-        <span className="font-bold text-lg sm:text-xl text-primary">
+        <span className="hidden sm:block font-bold text-lg sm:text-xl text-primary">
           Dehackpost
         </span>
       </div>
@@ -34,27 +34,11 @@ function Header({
         <button className="sm:hidden p-2 rounded-full bg-slate-100">
           <Search className="text-gray-700" size={20} />
         </button>
-        <div className="hidden sm:flex items-center gap-2">
-          <Bell
-            className="text-gray-500 hover:text-primary cursor-pointer"
-            size={20}
-          />
-          <Users
-            className="text-gray-500 hover:text-primary cursor-pointer"
-            size={20}
-          />
-          <Network
-            className="text-gray-500 hover:text-primary cursor-pointer"
-            size={20}
-          />
-        </div>
-        <div className="">
-          <ConnectButton
-            chainStatus={"none"}
-            showBalance={false}
-            accountStatus={"full"}
-          />
-        </div>
+        <ConnectButton
+          chainStatus={"none"}
+          showBalance={false}
+          accountStatus={"full"}
+        />
       </div>
     </header>
   );

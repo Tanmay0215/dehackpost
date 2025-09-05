@@ -36,12 +36,6 @@ export default function CreateHackathon() {
   ]);
   const [projectsCID, setProjectsCID] = useState<string>("");
   const [createdAt, setCreatedAt] = useState<string>("");
-  const [resultJson, setResultJson] = useState<string>("");
-  const [ipfsResponse, setIpfsResponse] = useState<{
-    cid?: string;
-    gatewayUrl?: string;
-    error?: string;
-  } | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
@@ -96,26 +90,9 @@ export default function CreateHackathon() {
     createdAt,
   ]);
 
-  async function handleSubmit() {
-    setSubmitting(true);
-    setIpfsResponse(null);
-    try {
-      const res = await fetch("/api/hackathon", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: preview || "{}",
-      });
-      const json = await res.json();
-      setResultJson(JSON.stringify(json, null, 2));
-    } finally {
-      setSubmitting(false);
-    }
-  }
-
   async function handleSubmitAndUpload() {
     if (!preview) return;
     setSubmitting(true);
-    setIpfsResponse(null);
     try {
       // 1) Build canonical JSON on server (validation)
       const apiRes = await fetch("/api/hackathon", {
@@ -124,7 +101,6 @@ export default function CreateHackathon() {
         body: preview,
       });
       const built = await apiRes.json();
-      setResultJson(JSON.stringify(built, null, 2));
 
       // 2) Upload to IPFS
       const ipfsRes = await fetch("/api/ipfs", {
@@ -133,7 +109,6 @@ export default function CreateHackathon() {
         body: JSON.stringify(built),
       });
       const ipfsJson = await ipfsRes.json();
-      setIpfsResponse(ipfsJson);
 
       if (!ipfsJson?.cid) return;
 
@@ -390,51 +365,6 @@ export default function CreateHackathon() {
               />
             </div>
           </div>
-
-          <div className="grid gap-4">
-            <div className="grid gap-2">
-              <Label>Preview (POST body)</Label>
-              <Textarea
-                readOnly
-                className="min-h-[420px] font-mono text-xs"
-                value={preview || "Fill required fields to preview..."}
-              />
-            </div>
-            <div className="grid gap-2">
-              <Label>API Result</Label>
-              <Textarea
-                readOnly
-                className="min-h-[220px] font-mono text-xs"
-                value={resultJson}
-              />
-            </div>
-            <div className="grid gap-2">
-              <Label>IPFS</Label>
-              <div className="text-sm text-muted-foreground">
-                {ipfsResponse?.cid ? (
-                  <div className="space-y-1">
-                    <div>CID: {ipfsResponse.cid}</div>
-                    {ipfsResponse.gatewayUrl && (
-                      <a
-                        className="text-blue-600 underline"
-                        href={ipfsResponse.gatewayUrl}
-                        target="_blank"
-                        rel="noreferrer"
-                      >
-                        Open on gateway
-                      </a>
-                    )}
-                  </div>
-                ) : ipfsResponse?.error ? (
-                  <div className="text-red-600">{ipfsResponse.error}</div>
-                ) : (
-                  <div>
-                    Submit will also upload to IPFS and update registry.
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
         </div>
 
         <div className="flex justify-end gap-2">
@@ -442,7 +372,7 @@ export default function CreateHackathon() {
             onClick={handleSubmitAndUpload}
             disabled={!preview || submitting}
           >
-            {submitting ? "Submitting..." : "Submit & Upload"}
+            {submitting ? "Submitting..." : "Submit"}
           </Button>
         </div>
       </div>
