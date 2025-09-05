@@ -4,15 +4,17 @@ import {
   Compass,
   Folder,
   PlusSquare,
+  FileText,
   Gavel,
   LayoutDashboard,
   Shield,
 } from "lucide-react";
 
 const nav = [
-  { href: "/", label: "Discover", icon: Compass },
+  { href: "/discover", label: "Discover", icon: Compass },
   { href: "/projects", label: "Projects", icon: Folder },
   { href: "/create", label: "Create", icon: PlusSquare },
+  { href: "/submit", label: "Submit", icon: FileText },
   { href: "/judge", label: "Judge", icon: Gavel },
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/admin", label: "Admin", icon: Shield },
