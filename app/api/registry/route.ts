@@ -24,11 +24,19 @@ export async function GET() {
 export async function POST(req: NextRequest) {
     // This endpoint just returns the merged registry object; client will upload to IPFS.
     try {
-        const body = (await req.json()) as { current: Registry; add: { id: string; cid: string } };
-        const next: Registry = {
-            hackathons: [...(body.current?.hackathons ?? []), body.add],
-            users: body.current?.users ?? [],
+        const body = (await req.json()) as {
+            current: Registry;
+            add?: { id: string; cid: string }; // add hackathon
+            addUser?: { wallet: string; cid: string }; // add user profile
         };
+
+        const hackathons = [...(body.current?.hackathons ?? [])];
+        if (body.add) hackathons.push(body.add);
+
+        const users = [...(body.current?.users ?? [])];
+        if (body.addUser) users.push(body.addUser);
+
+        const next: Registry = { hackathons, users };
         return NextResponse.json(next);
     } catch (_) {
         return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });

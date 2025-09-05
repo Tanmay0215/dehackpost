@@ -47,7 +47,7 @@ export default function AuthRegister() {
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
           current: reg,
-          add: { id: wallet, cid: ipfs.cid },
+          addUser: { wallet, cid: ipfs.cid },
         }),
       }).then((r) => r.json());
 
