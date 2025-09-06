@@ -250,7 +250,7 @@ export function CreateHackathonClient() {
           <select
             id="status"
             value={status}
-            onChange={(e) => setStatus(e.target.value as any)}
+            onChange={(e) => setStatus(e.target.value as "upcoming" | "ongoing" | "ended")}
             className="w-full p-2 border border-gray-300 rounded-md"
           >
             <option value="upcoming">Upcoming</option>

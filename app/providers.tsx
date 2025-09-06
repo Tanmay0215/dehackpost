@@ -36,22 +36,22 @@ export function Providers({ children }: { children: ReactNode }) {
     setMounted(true);
   }, []);
 
-  if (!mounted) {
-    return <>{children}</>;
-  }
-
   return (
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>
-        <RainbowKitProvider
-          modalSize="compact"
-          theme={{
-            lightMode: lightTheme(),
-            darkMode: darkTheme(),
-          }}
-        >
-          {children}
-        </RainbowKitProvider>
+        {mounted ? (
+          <RainbowKitProvider
+            modalSize="compact"
+            theme={{
+              lightMode: lightTheme(),
+              darkMode: darkTheme(),
+            }}
+          >
+            {children}
+          </RainbowKitProvider>
+        ) : (
+          children
+        )}
       </QueryClientProvider>
     </WagmiProvider>
   );
