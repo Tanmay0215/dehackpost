@@ -8,6 +8,7 @@ import {
   PlusSquare,
   Gavel,
   User,
+  Settings,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth/useAuth";
 
@@ -33,6 +34,7 @@ const Sidebar = ({
   if (user) {
     authNav.push({ href: "/dashboard", label: "Dashboard", icon: User });
     authNav.push({ href: "/judge", label: "Judge", icon: Gavel });
+    authNav.push({ href: "/admin", label: "Admin", icon: Settings });
   }
 
   const nav = [...baseNav, ...authNav];
@@ -70,10 +72,14 @@ const Sidebar = ({
             />
           ))}
         </ul>
-        
+
         {user && (
           <div className="border-t border-gray-200 p-3">
-            <div className={`text-xs text-gray-600 transition-all overflow-hidden ${expanded ? "w-full" : "w-0"}`}>
+            <div
+              className={`text-xs text-gray-600 transition-all overflow-hidden ${
+                expanded ? "w-full" : "w-0"
+              }`}
+            >
               <div>Connected as:</div>
               <div className="font-mono text-xs truncate">{user.address}</div>
             </div>
