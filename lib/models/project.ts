@@ -5,6 +5,7 @@ export interface IProject extends Document {
   title: string;
   description: string;
   hackathonId: string;
+  track?: string;  // Hackathon track
   team: {
     name: string;
     members: {
@@ -33,6 +34,7 @@ const ProjectSchema = new Schema({
   title: { type: String, required: true },
   description: { type: String, required: true },
   hackathonId: { type: String, required: true, ref: 'Hackathon' },
+  track: { type: String }, // Optional hackathon track
   team: {
     name: { type: String, required: true },
     members: [{

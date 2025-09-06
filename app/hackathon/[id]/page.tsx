@@ -1,5 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { IPFS_GATEWAY } from "@/lib/constants";
+import Link from "next/link";
 
 async function getHackathonData(id: string) {
   const reg = await fetch(
@@ -36,6 +38,25 @@ async function getHackathonData(id: string) {
   }
 }
 
+async function getHackathonProjects(hackathonId: string) {
+  try {
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+    const response = await fetch(
+      `${baseUrl}/api/projects?hackathonId=${hackathonId}`,
+      {
+        cache: "no-store",
+      }
+    );
+    if (response.ok) {
+      const data = await response.json();
+      return data.projects || [];
+    }
+  } catch (error) {
+    console.error("Failed to fetch hackathon projects:", error);
+  }
+  return [];
+}
+
 export default async function HackathonDetail({
   params,
 }: {
@@ -43,6 +64,7 @@ export default async function HackathonDetail({
 }) {
   const { id } = await params;
   const data = await getHackathonData(id);
+  const projects = await getHackathonProjects(id);
   return (
     <main className="mx-auto max-w-5xl px-4 py-8">
       <Card>
@@ -109,20 +131,18 @@ export default async function HackathonDetail({
           <section className="md:col-span-2">
             <h2 className="mb-2 text-sm font-medium">Submitted Projects</h2>
             <div className="text-sm text-muted-foreground">
-              {(data?.projectsCID ?? []).length === 0 ? (
+              {projects.length === 0 ? (
                 "No submissions yet."
               ) : (
                 <ul className="list-disc pl-5">
-                  {data?.projectsCID.map((cid) => (
-                    <li key={cid}>
-                      <a
+                  {projects.map((project:any) => (
+                    <li key={project.id}>
+                      <Link
                         className="text-blue-600 underline"
-                        href={`${IPFS_GATEWAY}/ipfs/${cid}`}
-                        target="_blank"
-                        rel="noreferrer"
+                        href={`/projects/${project.id}`}
                       >
-                        {cid}
-                      </a>
+                        {project.name}
+                      </Link>
                     </li>
                   ))}
                 </ul>

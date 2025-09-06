@@ -1,8 +1,41 @@
-import { uploadJSONToIPFS, getPinataFileById, buildGatewayUrlForCid, extractCidFromUploadResult } from '@/lib/pinata';
+import { uploadJSONToIPFS, uploadFileToIPFS, getPinataFileById, buildGatewayUrlForCid, extractCidFromUploadResult } from '@/lib/pinata';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(req: NextRequest) {
   try {
+    const contentType = req.headers.get('content-type') || '';
+    
+    // Handle file uploads (multipart/form-data)
+    if (contentType.includes('multipart/form-data')) {
+      const formData = await req.formData();
+      const file = formData.get('file') as File;
+      
+      if (!file) {
+        return NextResponse.json({ success: false, error: 'No file provided' }, { status: 400 });
+      }
+
+      const result = await uploadFileToIPFS(file);
+      const cid = extractCidFromUploadResult(result);
+      
+      if (!cid) {
+        return NextResponse.json({ success: false, error: 'Upload succeeded but CID not found in response' }, { status: 500 });
+      }
+
+      const gatewayBase = process.env.NEXT_PUBLIC_GATEWAY_URL ?? '';
+      const gatewayUrl = `${gatewayBase.replace(/\/$/, '')}/ipfs/${cid}`;
+
+      return NextResponse.json({
+        success: true,
+        ipfsHash: cid,
+        cid,
+        gatewayUrl,
+        fileName: file.name,
+        fileSize: file.size,
+        fileType: file.type
+      });
+    }
+    
+    // Handle JSON uploads (application/json)
     const data = await req.json();
     const result = await uploadJSONToIPFS(data);
 
@@ -19,7 +52,8 @@ export async function POST(req: NextRequest) {
       cid,
       gatewayUrl
     });
-  } catch {
+  } catch (error) {
+    console.error('Error uploading to IPFS:', error);
     return NextResponse.json(
       { success: false, error: 'Failed to upload to IPFS' },
       { status: 500 }

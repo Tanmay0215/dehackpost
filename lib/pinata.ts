@@ -79,3 +79,18 @@ export function extractCidFromUploadResult(result: unknown): string | null {
   }
   return null;
 }
+
+export async function uploadFileToIPFS(file: File, fileName?: string) {
+  try {
+    const name = fileName || file.name || "file";
+    const result = await pinata.upload.public.file(file, {
+      metadata: {
+        name: name
+      }
+    });
+    return result;
+  } catch (error) {
+    console.error('Error uploading file to IPFS:', error);
+    throw error;
+  }
+}
