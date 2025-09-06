@@ -1,7 +1,7 @@
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Zap, Shield, Globe, Users, Trophy, Code } from "lucide-react";
+import { AuthAwareCTA, AuthAwareFooterCTA } from "@/app/_components/auth-aware-cta";
 
 export default function LandingPage() {
   return (
@@ -18,18 +18,7 @@ export default function LandingPage() {
             hackathons, submit projects, and judge submissions - all stored on
             IPFS.
           </p>
-          <div className="mt-10 flex items-center justify-center gap-x-6">
-            <Link href="/discover">
-              <Button size="lg" className="px-8 py-3">
-                Discover Hackathons
-              </Button>
-            </Link>
-            <Link href="/create">
-              <Button variant="outline" size="lg" className="px-8 py-3">
-                Host Event
-              </Button>
-            </Link>
-          </div>
+          <AuthAwareCTA />
         </div>
       </section>
 
@@ -143,21 +132,7 @@ export default function LandingPage() {
           <h2 className="text-3xl font-bold text-white sm:text-4xl">
             Ready to Get Started?
           </h2>
-          <p className="mt-4 text-lg text-blue-100">
-            Join the decentralized hackathon revolution today
-          </p>
-          <div className="mt-10 flex items-center justify-center gap-x-6">
-            <Link href="/auth">
-              <Button size="lg" variant="outline">
-                Register Now
-              </Button>
-            </Link>
-            <Link href="/projects">
-              <Button size="lg" variant="outline">
-                View Projects
-              </Button>
-            </Link>
-          </div>
+          <AuthAwareFooterCTA />
         </div>
       </section>
 
@@ -185,16 +160,16 @@ export default function LandingPage() {
                 Create
               </Link>
               <Link
-                href="/submit"
+                href="/projects"
                 className="text-gray-400 hover:text-white text-sm"
               >
-                Submit
+                Projects
               </Link>
               <Link
-                href="/admin"
+                href="/judge"
                 className="text-gray-400 hover:text-white text-sm"
               >
-                Admin
+                Judge
               </Link>
             </div>
           </div>

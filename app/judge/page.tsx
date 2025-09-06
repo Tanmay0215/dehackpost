@@ -2,10 +2,11 @@
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { useState } from "react";
 import type { JudgeFeedback } from "@/lib/types";
 
-export default function JudgeDashboard() {
+function JudgeDashboardContent() {
   const [projectId, setProjectId] = useState("");
   const [judgeWallet, setJudgeWallet] = useState("");
   const [scores, setScores] = useState({
@@ -139,5 +140,13 @@ export default function JudgeDashboard() {
         </TabsContent>
       </Tabs>
     </main>
+  );
+}
+
+export default function JudgeDashboard() {
+  return (
+    <ProtectedRoute>
+      <JudgeDashboardContent />
+    </ProtectedRoute>
   );
 }

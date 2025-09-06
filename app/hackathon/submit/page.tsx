@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -10,6 +10,7 @@ import { IPFS_GATEWAY } from "@/lib/constants";
 import { useAccount } from "wagmi";
 
 export default function SubmitProject() {
+  const [mounted, setMounted] = useState(false);
   const { address } = useAccount();
   const [title, setTitle] = useState("");
   const [repo, setRepo] = useState("");
@@ -20,6 +21,18 @@ export default function SubmitProject() {
   const [cid, setCid] = useState<string | null>(null);
   const [gatewayUrl, setGatewayUrl] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
 
   async function handleSubmit() {
     setSubmitting(true);

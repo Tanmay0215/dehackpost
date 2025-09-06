@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import {
   Menu,
@@ -5,18 +7,9 @@ import {
   Folder,
   PlusSquare,
   Gavel,
-  LayoutDashboard,
-  Shield,
+  User,
 } from "lucide-react";
-
-const nav = [
-  { href: "/discover", label: "Discover", icon: Compass },
-  { href: "/projects", label: "Projects", icon: Folder },
-  { href: "/create", label: "Create", icon: PlusSquare },
-  { href: "/judge", label: "Judge", icon: Gavel },
-  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/admin", label: "Admin", icon: Shield },
-];
+import { useAuth } from "@/lib/auth/useAuth";
 
 const Sidebar = ({
   expanded,
@@ -25,6 +18,25 @@ const Sidebar = ({
   expanded: boolean;
   setExpanded: React.Dispatch<React.SetStateAction<boolean>>;
 }) => {
+  const { user } = useAuth();
+
+  // Base navigation items available to all users
+  const baseNav = [
+    { href: "/discover", label: "Discover", icon: Compass },
+    { href: "/projects", label: "Projects", icon: Folder },
+    { href: "/create", label: "Create", icon: PlusSquare },
+  ];
+
+  // Additional items based on user authentication
+  const authNav = [];
+  
+  if (user) {
+    authNav.push({ href: "/dashboard", label: "Dashboard", icon: User });
+    authNav.push({ href: "/judge", label: "Judge", icon: Gavel });
+  }
+
+  const nav = [...baseNav, ...authNav];
+
   return (
     <aside
       className={`z-50 min-h-max min-w-[100vw] absolute sm:static sm:translate-x-0 ${
@@ -38,7 +50,7 @@ const Sidebar = ({
               expanded ? "w-32" : "w-0"
             }`}
           >
-            Dashboard
+            HackX
           </h2>
           <button
             onClick={() => setExpanded((curr) => !curr)}
@@ -58,6 +70,15 @@ const Sidebar = ({
             />
           ))}
         </ul>
+        
+        {user && (
+          <div className="border-t border-gray-200 p-3">
+            <div className={`text-xs text-gray-600 transition-all overflow-hidden ${expanded ? "w-full" : "w-0"}`}>
+              <div>Connected as:</div>
+              <div className="font-mono text-xs truncate">{user.address}</div>
+            </div>
+          </div>
+        )}
       </nav>
     </aside>
   );

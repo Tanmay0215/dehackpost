@@ -13,15 +13,6 @@ export type ProjectMetadata = {
     status: 'draft' | 'submitted' | 'finalist' | 'winner';
 };
 
-export type UserProfile = {
-    wallet: string;
-    username: string;
-    bio: string;
-    profileImageCID?: string;
-    participatedHackathons: { hackathonId: string; projectCID: string }[];
-    reputation: { hackathonsWon: number; projectsSubmitted: number };
-};
-
 export type JudgeFeedback = {
     id: string;
     projectId: string;

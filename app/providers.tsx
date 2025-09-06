@@ -1,6 +1,6 @@
 "use client";
 
-import { ReactNode } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import {
   RainbowKitProvider,
   getDefaultConfig,
@@ -24,12 +24,22 @@ const config = getDefaultConfig({
   appName: "Dehackpost",
   projectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID ?? "demo",
   chains: [mainnet, base, optimism, polygon, arbitrum, sepolia],
-  ssr: true,
+  ssr: false, // Disable SSR to prevent indexedDB errors
 });
 
 const queryClient = new QueryClient();
 
 export function Providers({ children }: { children: ReactNode }) {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return <>{children}</>;
+  }
+
   return (
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>

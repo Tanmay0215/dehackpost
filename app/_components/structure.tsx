@@ -1,17 +1,27 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import Sidebar from "./sidebar";
 import Header from "./header";
 
 const Structure = ({ children }: { children: React.ReactNode }) => {
   const [expanded, setExpanded] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const pathname = usePathname();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Show sidebar and header for all pages except landing page
   const showLayout = pathname !== "/";
 
   if (!showLayout) {
+    return <div className="min-h-screen">{children}</div>;
+  }
+
+  // Don't render layout components until mounted to avoid SSR issues
+  if (!mounted) {
     return <div className="min-h-screen">{children}</div>;
   }
 

@@ -39,14 +39,15 @@ async function getHackathonData(id: string) {
 export default async function HackathonDetail({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
-  const data = await getHackathonData(params.id);
+  const { id } = await params;
+  const data = await getHackathonData(id);
   return (
     <main className="mx-auto max-w-5xl px-4 py-8">
       <Card>
         <CardHeader>
-          <CardTitle>{data?.name ?? `Hackathon: ${params.id}`}</CardTitle>
+          <CardTitle>{data?.name ?? `Hackathon: ${id}`}</CardTitle>
         </CardHeader>
         <CardContent className="grid gap-6 md:grid-cols-2">
           <section>
